@@ -4,9 +4,18 @@
 class Solution {
 public:
     int myAtoi(string str) {
-        if(str.size() == 0 || (str[0] != '-' && !isdigit(str[0])))
+        if(str.size() == 0)
              return 0;
-
+        bool positive = true;
+        for(std::string::size_type i = 0; i < str.size(); i ++)
+        {
+            if(str[i] == ' ')
+                continue;
+            str = str.substr(i);
+            break;
+        }
+        if(str.size() == 0 || (!isdigit(str[0]) && str[0] != '-' && str[0] != '+'))
+            return 0;
         std::vector<char> numbers;
         std::deque<char> maxint;
         std::deque<char> minint;
@@ -24,13 +33,15 @@ public:
         }
 
         std::string::size_type idx = 0;
-        if(str[idx] == '-')
+        if(str[idx] == '-' || str[idx] == '+')
             idx++;
         for(;idx < str.size();idx++)
         {
             if(!isdigit(str[idx]))
                 break;
-            numbers.push_back(str[idx]);
+            if(numbers.size() == 0 && str[idx] == '0')
+                continue;
+            numbers.push_back(str[idx] - '0');
         }
         if(numbers.size() == 0)
             return 0;
@@ -54,9 +65,11 @@ public:
             for(size_t i = 0; i <  tmp.size();i++)
             {
                 if(tmp[i] < numbers[i])
-                    return 0;
+                    return str[0] == '-' ? 0x80000000 : 0x7FFFFFFF;
                 else if(tmp[i] > numbers[i])
                     break;
+                if(i == tmp.size() - 1)
+                    return str[0] == '-' ? 0x80000000 : 0x7FFFFFFF;
             }
         }
         int result = 0;
